@@ -1,0 +1,38 @@
+{
+  "id": "nudge",
+  "name": "Nudge",
+  "description": "Periodic self-reflection nudges via agent_end hook. Inspired by Hermes agent's background review mechanism.",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "interval": {
+        "type": "number",
+        "description": "Trigger a nudge every N agent turns (default: 10)",
+        "default": 10
+      },
+      "promptFile": {
+        "type": "string",
+        "description": "Path to a file containing the nudge prompt (relative to workspace). Default: NUDGE.md",
+        "default": "NUDGE.md"
+      },
+      "prompt": {
+        "type": "string",
+        "description": "Inline nudge prompt (overrides promptFile)"
+      },
+      "mode": {
+        "type": "string",
+        "enum": ["subagent", "system-event"],
+        "description": "How to trigger reflection: 'subagent' spawns a background agent (default), 'system-event' injects into main session",
+        "default": "subagent"
+      },
+      "skipTriggers": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Skip nudge when agent run was initiated by these triggers (default: [\"heartbeat\", \"cron\"])",
+        "default": ["heartbeat", "cron"]
+      }
+    }
+  }
+}
