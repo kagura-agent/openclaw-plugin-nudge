@@ -23,9 +23,9 @@
       },
       "mode": {
         "type": "string",
-        "enum": ["subagent", "system-event"],
-        "description": "How to trigger reflection: 'subagent' spawns a background agent (default), 'system-event' injects into main session",
-        "default": "subagent"
+        "enum": ["system-event"],
+        "description": "How to trigger reflection. Currently only 'system-event' is implemented (injects nudge into main session).",
+        "default": "system-event"
       },
       "skipTriggers": {
         "type": "array",
