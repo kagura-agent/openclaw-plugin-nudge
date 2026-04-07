@@ -1,0 +1,19 @@
+# Secrets & credentials
+.env
+.env.*
+*.key
+credentials*
+.memexrc
+.memex/
+
+# Dependencies
+node_modules/
+
+# Build
+dist/
+*.tgz
+
+# OS
+.DS_Store
+Thumbs.db
+
