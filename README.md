@@ -66,3 +66,7 @@ The turn counter is stored in `<workspace>/.nudge-state.json`. This file is crea
 ## License
 
 MIT
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=kagura-agent/openclaw-plugin-nudge&type=Date)](https://star-history.com/#kagura-agent/openclaw-plugin-nudge&Date)
