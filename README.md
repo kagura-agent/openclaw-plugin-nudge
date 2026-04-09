@@ -69,4 +69,10 @@ MIT
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=kagura-agent/openclaw-plugin-nudge&type=Date)](https://star-history.com/#kagura-agent/openclaw-plugin-nudge&Date)
+<a href="https://www.star-history.com/#kagura-agent/openclaw-plugin-nudge&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=kagura-agent/openclaw-plugin-nudge&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=kagura-agent/openclaw-plugin-nudge&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kagura-agent/openclaw-plugin-nudge&type=Date" />
+ </picture>
+</a>
