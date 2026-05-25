@@ -1,5 +1,30 @@
-import { readFileSync, writeFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, appendFileSync } from "fs";
 import { join } from "path";
+
+// File-based audit log for nudge observability
+// Addresses the "nudge observability black hole" — console.log doesn't reliably
+// appear in journalctl, so we can't verify nudge is firing without this.
+const AUDIT_LOG_FILENAME = ".nudge-audit.log";
+const MAX_AUDIT_LINES = 200;
+
+function auditLog(workspaceDir: string, message: string): void {
+  const logPath = join(workspaceDir, AUDIT_LOG_FILENAME);
+  const timestamp = new Date().toISOString();
+  const entry = `${timestamp} ${message}\n`;
+  try {
+    appendFileSync(logPath, entry);
+    // Trim if too long (keep last MAX_AUDIT_LINES lines)
+    if (existsSync(logPath)) {
+      const content = readFileSync(logPath, "utf-8");
+      const lines = content.split("\n").filter(Boolean);
+      if (lines.length > MAX_AUDIT_LINES) {
+        writeFileSync(logPath, lines.slice(-MAX_AUDIT_LINES).join("\n") + "\n");
+      }
+    }
+  } catch {
+    // Best-effort logging — don't break the plugin
+  }
+}
 
 // State file for persisting turn counter across gateway restarts
 const STATE_FILENAME = ".nudge-state.json";
@@ -85,7 +110,10 @@ export default function register(api: any) {
       if (!event.success) return;
 
       // Skip if trigger should be ignored (heartbeat, cron, etc.)
-      if (ctx.trigger && skipTriggers.has(ctx.trigger)) return;
+      if (ctx.trigger && skipTriggers.has(ctx.trigger)) {
+        if (workspaceDir) auditLog(workspaceDir, `Skipped (trigger=${ctx.trigger})`);
+        return;
+      }
 
       // Need workspace to persist state
       const workspaceDir = ctx.workspaceDir;
@@ -111,9 +139,9 @@ export default function register(api: any) {
       if (!prompt) return;
 
       // Log the nudge
-      console.log(
-        `[nudge] Triggering reflection (mode=${mode}, interval=${interval}, session=${ctx.sessionKey})`,
-      );
+      const logMsg = `Triggering reflection (mode=${mode}, interval=${interval}, session=${ctx.sessionKey})`;
+      console.log(`[nudge] ${logMsg}`);
+      auditLog(workspaceDir, logMsg);
 
       try {
         if (api.runtime?.system?.enqueueSystemEvent) {
@@ -124,6 +152,7 @@ export default function register(api: any) {
             contextKey: "nudge-reflection",
           });
           console.log("[nudge] System event enqueued successfully");
+          auditLog(workspaceDir, "System event enqueued successfully");
         } else {
           console.warn(
             "[nudge] No runtime API available. " +
@@ -132,10 +161,14 @@ export default function register(api: any) {
         }
       } catch (err) {
         console.error("[nudge] Failed to trigger reflection:", err);
+        auditLog(workspaceDir, `FAILED: ${err}`);
       }
     },
     { priority: -10 }, // Low priority — run after other hooks
   );
+
+  // Also log skipped turns for full visibility
+  // (counter increments are visible in state file, but skip reasons aren't)
 
   // Log startup
   console.log(
