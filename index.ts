@@ -111,7 +111,7 @@ export default function register(api: any) {
 
       // Skip if trigger should be ignored (heartbeat, cron, etc.)
       if (ctx.trigger && skipTriggers.has(ctx.trigger)) {
-        if (workspaceDir) auditLog(workspaceDir, `Skipped (trigger=${ctx.trigger})`);
+        if (ctx.workspaceDir) auditLog(ctx.workspaceDir, `Skipped (trigger=${ctx.trigger})`);
         return;
       }
 
