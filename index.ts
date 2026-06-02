@@ -40,6 +40,7 @@ interface NudgeConfig {
   prompt?: string;
   mode?: "system-event" | "subagent";
   skipTriggers?: string[];
+  skipSessionPatterns?: string[];
 }
 
 function loadState(workspaceDir: string): NudgeState {
@@ -94,6 +95,7 @@ export default function register(api: any) {
   const interval = config.interval ?? 10;
   const mode = config.mode ?? "subagent";
   const skipTriggers = new Set(config.skipTriggers ?? ["heartbeat", "cron"]);
+  const skipSessionPatterns: string[] = config.skipSessionPatterns ?? [];
 
   api.on(
     "agent_end",
@@ -113,6 +115,15 @@ export default function register(api: any) {
       if (ctx.trigger && skipTriggers.has(ctx.trigger)) {
         if (ctx.workspaceDir) auditLog(ctx.workspaceDir, `Skipped (trigger=${ctx.trigger})`);
         return;
+      }
+
+      // Skip if session key matches any skip pattern (e.g. dreaming sessions)
+      if (ctx.sessionKey && skipSessionPatterns.length > 0) {
+        const matchedPattern = skipSessionPatterns.find(p => ctx.sessionKey!.includes(p));
+        if (matchedPattern) {
+          if (ctx.workspaceDir) auditLog(ctx.workspaceDir, `Skipped (sessionPattern=${matchedPattern}, session=${ctx.sessionKey})`);
+          return;
+        }
       }
 
       // Need workspace to persist state
@@ -172,6 +183,6 @@ export default function register(api: any) {
 
   // Log startup
   console.log(
-    `[nudge] Plugin loaded (mode=${mode}, interval=${interval}, skipTriggers=${[...skipTriggers].join(",")})`,
+    `[nudge] Plugin loaded (mode=${mode}, interval=${interval}, skipTriggers=${[...skipTriggers].join(",")}, skipSessionPatterns=${skipSessionPatterns.join(",") || "none"})`,
   );
 }

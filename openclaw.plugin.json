@@ -23,15 +23,21 @@
       },
       "mode": {
         "type": "string",
-        "enum": ["system-event"],
-        "description": "How to trigger reflection. Currently only 'system-event' is implemented (injects nudge into main session).",
-        "default": "system-event"
+        "enum": ["subagent", "system-event"],
+        "description": "How to trigger reflection: 'subagent' spawns a background agent (default), 'system-event' injects into main session",
+        "default": "subagent"
       },
       "skipTriggers": {
         "type": "array",
         "items": { "type": "string" },
         "description": "Skip nudge when agent run was initiated by these triggers (default: [\"heartbeat\", \"cron\"])",
         "default": ["heartbeat", "cron"]
+      },
+      "skipSessionPatterns": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Skip nudge when session key matches any of these substrings (e.g. [\"dreaming\"] to skip memory-core dreaming sessions)",
+        "default": []
       }
     }
   }
